@@ -15,30 +15,25 @@
  *
  */
 
+import React from 'react'
+
 import _ from 'lodash'
 
-import fileHandler from '../handlers/fileHandler'
-import projectHandler from '../handlers/projectHandler'
-import windowHandler from '../handlers/windowHandler'
-import processHandler from '../handlers/processHandler'
-import componentHandler from '../handlers/componentHandler'
-import moduleHandler from '../handlers/moduleHandler'
-import preferenceHandler from '../handlers/preferenceHandler'
-import authHandler from '../handlers/authHandler'
+import request from '../ipc/Request'
+import AuthConstants from 'shared/constants/ipc/AuthConstants'
+const {
+  LOGIN,
+} = AuthConstants
 
-const handlers = [
-  projectHandler,
-  windowHandler,
-  processHandler,
-  componentHandler,
-  fileHandler,
-  moduleHandler,
-  preferenceHandler,
-  authHandler,
-]
+const _login = () => {
+  return {
+    type: LOGIN,
+    url: 'http://decowsstaging.herokuapp.com/credentials',
+  }
+}
 
-export const registerHandlers = () => {
-  _.each(handlers, (handler) => {
-    handler.register()
-  })
+export const login = () => {
+  return function(dispatch, getState) {
+    request(_login())
+  }
 }

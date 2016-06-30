@@ -22,6 +22,7 @@ import { connect } from 'react-redux'
 import { createProject, openProject, } from '../actions/applicationActions'
 import { resizeWindow, } from '../actions/uiActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
+import { login } from '../actions/authActions'
 
 import LandingPage from '../components/pages/LandingPage'
 
@@ -40,6 +41,7 @@ class Landing extends Component {
       center: true,
     }))
   }
+  
   render() {
     const {recentProjects} = this.state
 
@@ -47,10 +49,12 @@ class Landing extends Component {
       <LandingPage
         recentProjects={recentProjects}
         onOpen={(path) => {
-          this.props.dispatch(openProject(path))
+          // this.props.dispatch(openProject(path))
+          this.props.dispatch(login())
         }}
         onCreateNew={() => {
-          this.props.dispatch(createProject())
+          // this.props.dispatch(createProject())
+          this.props.dispatch(login())
         }} />
     )
   }

@@ -24,6 +24,7 @@ var BrowserWindow = require('electron').BrowserWindow; // Module to create nativ
 var dialog = require('electron').dialog;
 var nativeImage = require('electron').nativeImage;
 var app = require('electron').app;
+var session = require('electron').session;
 
 var Logger = require('../log/logger');
 
@@ -45,10 +46,6 @@ import {
 } from '../constants/DecoPaths'
 
 const intializeMainWindow = (browserWindow) => {
-
-  browserWindow.webContents.session.clearCache(function() {
-    //clear cache so updates are shown frequently
-  });
 
   browserWindow.hide();
   browserWindow.setTitle('Deco');
@@ -141,8 +138,85 @@ var WindowManager = {
       }
     })
   },
+  newAuthWindow: function(authUrl, width, height) {
+    return new Promise((resolve, reject) => {
+      const authJSONRegex = /\{.*\}/
+      try {
+        const browserWindow = new BrowserWindow({
+          width: width || 1020,
+          height: height || 620,
+          icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png'),
+        })
+
+        let didRespond = false
+        const onDone = (event) => {
+          try {
+            global.openWindows[id].hide()
+            global.openWindows[id].webContents.executeJavaScript(`document.body.innerHTML`, true, (result) => {
+              try {
+                const match = result.match(authJSONRegex)
+                if (match) {
+                  resolve(JSON.parse(match[0]))
+                } else {
+                  reject()
+                }
+              } catch (e) {
+                reject()
+              } finally {
+                didRespond = true
+                global.openWindows[id].destroy()
+              }
+            })
+          } catch (e) {
+            reject()
+          }
+        }
+
+        browserWindow.setTitle('Authorize Deco')
+        browserWindow.loadURL(authUrl)
+        browserWindow.show()
+
+        var id = new Date().getTime().toString();
+        global.openWindows[id] = browserWindow;
+
+        browserWindow.webContents.on('did-get-response-details', function(event, status, newUrl, originalUrl) {
+          if (newUrl.indexOf('http://decowsstaging.herokuapp.com/credentials?code') != -1) {
+            onDone(event)
+          }
+        })
+
+        browserWindow.on('closed', () => {
+          // Dereference the window object, usually you would store windows
+          // in an array if your app supports multi windows, this is the time
+          // when you should delete the corresponding element.
+          if (!didRespond) {
+            reject()
+          }
+          delete global.openWindows[id]
+        })
+
+      } catch (e) {
+        Logger.error(e)
+        if (browserWindow) {
+          browserWindow.destroy()
+        }
+        didRespond = true
+        reject()
+      }
+    })
+  },
   newWindow: function (width, height, show) {
     return new Promise((resolve, reject) => {
+      try {
+        session.defaultSession.cookies.remove('https://github.com/', 'user_session', () => {
+          Logger.info('done')
+          session.defaultSession.cookies.get({}, (err, cookies) => {
+            Logger.info(JSON.stringify(cookies))
+          })
+        })
+      } catch (e) {
+        Logger.error(e)
+      }
       var browserWindow = new BrowserWindow({
         width: width || global.workArea.width,
         height: height || global.workArea.height,
@@ -162,6 +236,7 @@ var WindowManager = {
   hidePreferencesWindow: function() {
     preferencesWindow.hide()
   },
+
   openPreferencesWindow: function() {
     if (global.preferencesWindow) {
       global.preferencesWindow.show()

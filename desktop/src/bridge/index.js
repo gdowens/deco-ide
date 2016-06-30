@@ -28,6 +28,7 @@ import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
 import ProjectConstants from 'shared/constants/ipc/ProjectConstants'
 import WindowConstants from 'shared/constants/ipc/WindowConstants'
 import ModuleConstants from 'shared/constants/ipc/ModuleConstants'
+import AuthConstants from 'shared/constants/ipc/AuthConstants'
 
 import ErrorConstants from 'shared/constants/ipc/ErrorConstants'
 const {
@@ -45,6 +46,7 @@ const REQUEST_TYPES = [
   ProjectConstants,
   WindowConstants,
   ModuleConstants,
+  AuthConstants,
 ]
 
 function sendToRenderer(channel, payload, windowId) {

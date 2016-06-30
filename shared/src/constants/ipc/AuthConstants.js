@@ -17,28 +17,8 @@
 
 import _ from 'lodash'
 
-import fileHandler from '../handlers/fileHandler'
-import projectHandler from '../handlers/projectHandler'
-import windowHandler from '../handlers/windowHandler'
-import processHandler from '../handlers/processHandler'
-import componentHandler from '../handlers/componentHandler'
-import moduleHandler from '../handlers/moduleHandler'
-import preferenceHandler from '../handlers/preferenceHandler'
-import authHandler from '../handlers/authHandler'
-
-const handlers = [
-  projectHandler,
-  windowHandler,
-  processHandler,
-  componentHandler,
-  fileHandler,
-  moduleHandler,
-  preferenceHandler,
-  authHandler,
-]
-
-export const registerHandlers = () => {
-  _.each(handlers, (handler) => {
-    handler.register()
-  })
-}
+export default _.mapKeys([
+  'LOGIN',
+  'RESUME_SESSION',
+  'LOGOUT',
+])
